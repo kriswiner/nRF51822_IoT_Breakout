@@ -1,0 +1,32 @@
+#include "mbed.h"
+
+DigitalOut myled1(P0_17);
+DigitalOut myled2(P0_18);
+DigitalOut myled3(P0_19);
+
+
+
+int main() {
+    
+myled1 = 1;
+myled2 = 1;
+myled3 = 1; // turn all leds off
+
+    while(1) {
+            myled1 = 0;
+            wait(8);
+            myled1 = 1;
+            wait(2);
+            
+            myled2 = 0;
+            wait(4);
+            myled2 = 1;
+            wait(2);
+            
+            myled3 = 0;
+            wait(2);
+            myled3 = 1;
+            wait(2);
+        
+    }
+}
