@@ -1,3 +1,7 @@
 # nRF51822_IoT_Breakout
 
 Basic programs for nRF51822 IoT breakout board allowing use of MPU9250 motion sensor and BMP280 pressure sensor. Also a short program allowing rgb led to operate. Still to come is BLE demonstration program. All programs are intended to use the mbed compiler.
+
+The nRF51822 Development Board is retired but this program will work on most nRF51-based devices.
+
+This program can also be used for the [nRF52823 Development Board](https://www.tindie.com/products/onehorse/nrf52832-development-board/), you just have to change the led pins in the main.cpp to 22, 23 and 24 and change the I2C pins in mpu9250.h to pins 6 (SDA) and 7 (SCL). Pin 10 in the MPU9250 interrupt on the nR52 Dev Board. The UART out can be on any pins, but you will need to change from the code  pins 9 and 10 because of the interrupt choice.
