@@ -31,7 +31,7 @@
 #include "mbed.h"
 #include "MPU9250.h"
 #include "BMP280.h"
-#include "N5110.h"
+//#include "N5110.h"
 #include "math.h"
 
 // Using NOKIA 5110 monochrome 84 x 48 pixel display
@@ -310,9 +310,9 @@ int main()
     pc.printf(" gy = %f", gy); 
     pc.printf(" gz = %f  deg/s\n\r", gz); 
     
-    pc.printf("gx = %f", mx); 
-    pc.printf(" gy = %f", my); 
-    pc.printf(" gz = %f  mG\n\r", mz); 
+    pc.printf("mx = %f", mx); 
+    pc.printf(" my = %f", my); 
+    pc.printf(" mz = %f  mG\n\r", mz); 
     
     tempCount = mpu9250.readTempData();  // Read the adc values
     temperature = ((float) tempCount) / 333.87f + 21.0f; // Temperature in degrees Centigrade
