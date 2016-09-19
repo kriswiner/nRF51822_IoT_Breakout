@@ -1,4 +1,4 @@
-ifndef MPU9250_H
+#ifndef MPU9250_H
 #define MPU9250_H
  
 #include "mbed.h"
