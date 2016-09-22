@@ -1,37 +1,21 @@
-/* MPU9250 Basic Example Code
+* MPU9250 Basic Example Code
  by: Kris Winer
- date: April 1, 2014
+ date: September 20, 2016
  license: Beerware - Use this code however you'd like. If you 
  find it useful you can buy me a beer some time.
  
  Demonstrate basic MPU-9250 functionality including parameterizing the register addresses, initializing the sensor, 
  getting properly scaled accelerometer, gyroscope, and magnetometer data out. Added display functions to 
  allow display to on breadboard monitor. Addition of 9 DoF sensor fusion using open source Madgwick and 
- Mahony filter algorithms. Sketch runs on the 3.3 V 8 MHz Pro Mini and the Teensy 3.1.
+ Mahony filter algorithms. 
  
  SDA and SCL should have external pull-up resistors (to 3.3V).
- 10k resistors are on the EMSENSR-9250 breakout board.
- 
- Hardware setup:
- MPU9250 Breakout --------- Arduino
- VDD ---------------------- 3.3V
- VDDI --------------------- 3.3V
- SDA ----------------------- A4
- SCL ----------------------- A5
- GND ---------------------- GND
- 
- Note: The MPU9250 is an I2C sensor and uses the Arduino Wire library. 
- Because the sensor is not 5V tolerant, we are using a 3.3 V 8 MHz Pro Mini or a 3.3 V Teensy 3.1.
- We have disabled the internal pull-ups used by the Wire library in the Wire.h/twi.c utility file.
- We are also using the 400 kHz fast I2C mode by setting the TWI_FREQ  to 400000L /twi.h utility file.
  */
  
 #include "mbed.h"
 #include "MPU9250.h"
 #include "BMP280.h"
-#include "EM7180.h"
 #include "math.h"
-
 
    MPU9250 mpu9250;  // Instantiate MPU9250 class
    
@@ -41,9 +25,9 @@
    
    Timer t;
    
-   InterruptIn myInterrupt(P0_8);
+   InterruptIn myInterrupt(P0_8); // One nRF52 Dev Board variant uses pin 8, one uses pin 10
 
- //  Serial pc(USBTX, USBRX); // tx, rx
+/* Serial pc(USBTX, USBRX); // tx, rx*/
   Serial pc(P0_12, P0_14); // tx, rx  
 
 float sum = 0;
@@ -104,26 +88,25 @@ uint32_t bmp280_compensate_P(int32_t adc_P)
   return (uint32_t)p;
 }
 
-void myinthandler()
+void myinthandler() // interrupt handler
 {
   newData = true;
 }
         
+        
 int main()
 {
   pc.baud(9600);  
-  myled = 0;
+  myled = 0; // turn off led
   
-  wait(15);
+  wait(5);
   
   //Set up I2C
   i2c.frequency(400000);  // use fast (400 kHz) I2C  
+   
+  t.start(); // enable system timer
   
-  pc.printf("CPU SystemCoreClock is %d Hz\r\n", SystemCoreClock);   
-  
-  t.start();        
-  
-  myled = 1;
+  myled = 1; // turn on led
     
   myInterrupt.rise(&myinthandler);  // define interrupt for INT pin output of MPU9250
   
@@ -131,6 +114,7 @@ int main()
   whoami = mpu9250.readByte(MPU9250_ADDRESS, WHO_AM_I_MPU9250);  // Read WHO_AM_I register for MPU-9250
   pc.printf("I AM 0x%x\n\r", whoami); pc.printf("I SHOULD BE 0x71\n\r");
   myled = 1;
+  
   if (whoami == 0x71) // WHO_AM_I should always be 0x71
   {  
     pc.printf("MPU9250 WHO_AM_I is 0x%x\n\r", whoami);
@@ -185,7 +169,9 @@ int main()
     pc.printf("z mag bias = %f\n\r", magBias[2]);
     wait(2);
     }
+    
    else
+   
    {
     pc.printf("Could not connect to MPU9250: \n\r");
     pc.printf("%#x \n",  whoami);
@@ -236,10 +222,12 @@ int main()
   pc.printf("dig_P8 is %d\n\r", dig_P8);
   pc.printf("dig_P9 is %d\n\r", dig_P9);
   
-    pc.printf("BMP-280 calibration complete...\n\r");
+  pc.printf("BMP-280 calibration complete...\n\r");
+  
    }
    
    else 
+   
    {
     pc.printf("BMP-280 is 0x%x\n\r", c);
     pc.printf("BMP-280 should be 0x55\n\r");
@@ -250,7 +238,7 @@ int main()
  while(1) {
   
   // If intPin goes high, all data registers have new data
-  //  if(mpu9250.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01) {  // OUse polling to check for data ready  
+  // if(mpu9250.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01) {  // OUse polling to check for data ready  
    if(newData){   // wait for interrupt for data ready
     newData = false;  // reset newData flag
     
@@ -278,7 +266,7 @@ int main()
     mx = (float)magCount[0]*mRes*magCalibration[0] - magBias[0];  // get actual magnetometer value, this depends on scale being set
     my = (float)magCount[1]*mRes*magCalibration[1] - magBias[1];  
     mz = (float)magCount[2]*mRes*magCalibration[2] - magBias[2];  
-    mx *= magScale[0];
+    mx *= magScale[0]; // poor man's soft iron calibration
     my *= magScale[1];
     mz *= magScale[2];  
    }
@@ -317,9 +305,9 @@ int main()
     pc.printf("q0, q1, q2, q3 = %f %f %f %f\n\r",q[0], q[1], q[2], q[3]);
     
     rawPress =  readBMP280Pressure();
-    Pressure = (float) bmp280_compensate_P(rawPress)/25600.; // Pressure in mbar
+    Pressure = (float) bmp280_compensate_P(rawPress)/25600.0f; // Pressure in mbar
     rawTemp =   readBMP280Temperature();
-    Temperature = (float) bmp280_compensate_T(rawTemp)/100.;
+    Temperature = (float) bmp280_compensate_T(rawTemp)/100.0f;
 
     float altitude = 145366.45f*(1.0f - powf(Pressure/1013.25f, 0.190284f) );
     pc.printf("Temperature = %f C\n\r", Temperature);
