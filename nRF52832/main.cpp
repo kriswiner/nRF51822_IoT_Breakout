@@ -21,8 +21,6 @@
    
    BMP280 bmp280;   // Instantiate BMP280 class
    
-   EM7180 em7180;  // Instantiate EM7180 class
-   
    Timer t;
    
    InterruptIn myInterrupt(P0_8); // One nRF52 Dev Board variant uses pin 8, one uses pin 10
